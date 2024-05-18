@@ -18,6 +18,7 @@ emotion_picture = []
 emotion_sound = []
 emotions = ['Angry','disgust','Fearful', 'Happy', 'Neutral', 'Sad', 'Surprised']
 # Create your views here.
+
 def home(request):
 
     return render(request,"base.html")

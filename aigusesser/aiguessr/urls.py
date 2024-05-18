@@ -6,5 +6,5 @@ urlpatterns = [
     path('upload_audio/', views.upload_audio, name='upload_audio'),
     path('uploadImage/', views.upload_image, name='upload_image'),
     path('getCalculatedResult/',views.getCalculatedResult,name="getCalculatedResult"),
-    path("home",views.home, name="home")
+    path("",views.home, name="home")
 ]

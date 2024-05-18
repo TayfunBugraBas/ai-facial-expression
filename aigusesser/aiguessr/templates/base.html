@@ -6,14 +6,38 @@
       div { margin-top: 20px;}
    </style>
    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+   <style>
+    .loader {
+      border: 8px solid #f3f3f3;
+      border-radius: 50%;
+      border-top: 8px solid blue;
+      border-bottom: 8px solid blue;
+      width: 60px;
+      height: 60px;
+      -webkit-animation: spin 2s linear infinite;
+      animation: spin 2s linear infinite;
+    }
+    
+    @-webkit-keyframes spin {
+      0% { -webkit-transform: rotate(0deg); }
+      100% { -webkit-transform: rotate(360deg); }
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    </style>
+
 </head>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <body>
    
 
     <div class="container text-center">
     <div class="row align-items-center">
-        <h2 id="secilen-duygu"></h2>
+        <span>Sound and make this emotion with Your face </span><h2 id="secilen-duygu" class="text-success"></h2>
     </div>
     </br>
     </br>
@@ -35,15 +59,19 @@
       <div class="row align-items-center">
         <div>
        
-          <button id="startButton">Start Camera</button>
+          <button id="startButton">StopCamera</button>
           
           <canvas id="canvas" width="640" height="480" style="display:none;"></canvas>
 
         </div>
       </div>
     </br>
-      <div class="row align-items-center">
+      <div class="row align-items-center justify-content-center">
+       
         <button id="makeGuess">Make a Guess</button>
+        <div class="loader" style="display: none;" id="load"></div>
+        <h2 id="sonuc"></h2>
+        <h2 id="topPuan"></h2>
       </div>
       </div>
     </div>
@@ -57,6 +85,8 @@
       let output = document.getElementById('output');
       let audioRecorder;
       let audioChunks = [];
+      var trialCount = 0;
+      var sumOfPoints = 0;
 
         navigator.mediaDevices.getUserMedia({ audio: true })
          .then(stream => {
@@ -89,7 +119,7 @@
          }).catch(err => {
          
             // If the user denies permission to record audio, then display an error.
-            console.log('Error: ' + err);
+          //  console.log('Error: ' + err);
          });
    </script>
 
@@ -101,9 +131,19 @@ const startButtonx = document.getElementById('startButton');
 const captureButton = document.getElementById('captureButton');
 
 let stream;
-let isCameraOn = false;
+let isCameraOn = true;
 
 // Function to start the camera
+$( document ).ready(async function() {
+    try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        video.srcObject = stream;
+        isCameraOn = true;
+    } catch (err) {
+        console.error('Error accessing webcam:', err);
+    }
+});
+
 async function startCamera() {
     try {
         stream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -173,85 +213,108 @@ function rastgeleDuyguSec() {
     return duygular[indeks];
 }
 var secilenDuygu = rastgeleDuyguSec();
-document.getElementById("secilen-duygu").innerText = "Sound and make this emotion with Your face " + secilenDuygu;
+document.getElementById("secilen-duygu").innerText = secilenDuygu;
 
     makepredButton.addEventListener('click', () => {
-        if (!isCameraOn) return;
-      canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
-      const imageData = canvas.toDataURL('image/png');
-      var csrftoken = getCookie('csrftoken');
-      console.log(csrftoken)
-      const formData = new FormData();
-       formData.append('image', imageData);
-        var headers = new Headers();
-      
-         fetch('http://127.0.0.1:8000/aiguessr/uploadImage/', { // Assuming Flask is running on localhost:5000
-                method: 'POST',
-                headers: {
-              
-                    'X-CSRFToken': csrftoken,
-                },
-                body: formData
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Failed to upload image');
-                }
-                // Handle success response
-                console.log('Image uploaded successfully');
-            })
-            .catch(error => {
-                console.error('Error uploading image:', error);
-            });
+   //     console.log("trial: "+trialCount)
+        if(trialCount < 3){
+            document.getElementById('makeGuess').innerText = "Make a Guess"
+            if (!isCameraOn) return;
+            canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+            const imageData = canvas.toDataURL('image/png');
+            var csrftoken = getCookie('csrftoken');
+            //     console.log(csrftoken)
+            const formData = new FormData();
+            formData.append('image', imageData);
+            var headers = new Headers();
         
-            const blobObj = new Blob(audioChunks, { type: 'audio/wav' });
-               const audioUrl = URL.createObjectURL(blobObj);
-               try {
-                    const response =  fetch('http://127.0.0.1:8000/aiguessr/upload_audio/', {
-                        method: 'POST',
-                        body: blobObj
-                    });
-                    
-                    
-                    audioChunks = [];
-                } catch (error) {
-                    console.error('Hata:', error);
-                }
-               const audio = new Audio(audioUrl);
-              // audio.play();
-               output.innerHTML = 'Playing the recorded audio!';
+            fetch('http://127.0.0.1:8000/uploadImage/', { // Assuming Flask is running on localhost:5000
+                    method: 'POST',
+                    headers: {
+                
+                        'X-CSRFToken': csrftoken,
+                    },
+                    body: formData
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to upload image');
+                    }
+                    // Handle success response
+                  //  console.log('Image uploaded successfully');
+                })
+                .catch(error => {
+                    console.error('Error uploading image:', error);
+                });
+            
+                const blobObj = new Blob(audioChunks, { type: 'audio/wav' });
+                const audioUrl = URL.createObjectURL(blobObj);
+                try {
+                        const response =  fetch('http://127.0.0.1:8000/upload_audio/', {
+                            method: 'POST',
+                            body: blobObj
+                        });
+                        
+                        
+                        audioChunks = [];
+                    } catch (error) {
+                        console.error('Hata:', error);
+                    }
+                const audio = new Audio(audioUrl);
+                // audio.play();
+                output.innerHTML = 'Playing the recorded audio!';
 
-      getResultsFromBackend();
+        getResultsFromBackend();
+        trialCount++
+        }
+        else{
+            trialCount = 0
+            sumOfPoints = 0;
+            secilenDuygu = rastgeleDuyguSec();
+            document.getElementById("secilen-duygu").innerText = secilenDuygu;
+            document.getElementById("topPuan").innerText = "sum Of Points: " + sumOfPoints
+            document.getElementById("sonuc").innerText = "Point Reset: " + data.message + "try the next emotion"
+            
+        }
 
     });
 function getResultsFromBackend(){
-    setTimeout(function() {
-        console.log(secilenDuygu)
-        var csrftoken = getCookie('csrftoken');
-        const formData = new FormData();
-       formData.append('req', secilenDuygu);
-       
-        fetch('http://127.0.0.1:8000/aiguessr/getCalculatedResult/', { // Assuming Flask is running on localhost:5000
-                method: 'POST',
-                headers: {
-              
-                    'X-CSRFToken': csrftoken,
-                },
-                body: formData
-            })
-            .then(response => {
-                if (!response.ok) {
-                    
-                }
-                // Handle success response
-                console.log(response);
-            })
-            .catch(error => {
-                console.error('Error uploading image:', error);
-            });
+    document.getElementById('load').style.display = "block";
+    document.getElementById('makeGuess').style.display = "none";
+    if(trialCount == 2){
+        document.getElementById('makeGuess').innerText = "Change Emotion";
+    }
+        setTimeout(function() {
+            
+           // console.log(secilenDuygu)
+            var csrftoken = getCookie('csrftoken');
+            const formData = new FormData();
+        formData.append('req', secilenDuygu);
+        
+            fetch('http://127.0.0.1:8000/getCalculatedResult/', { // Assuming Flask is running on localhost:5000
+                    method: 'POST',
+                    headers: {
+                
+                        'X-CSRFToken': csrftoken,
+                    },
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data =>{ 
+                    console.log(data)
+                    document.getElementById('load').style.display = "none";
+                    document.getElementById('makeGuess').style.display = "block";
+                    document.getElementById("sonuc").innerText = "here is the imitation result: " + parseFloat(data.message).toFixed(2) + "try again for better result"
+                    sumOfPoints = sumOfPoints + parseFloat(data.message)
+                    document.getElementById("topPuan").innerText = "sum Of Points: " + sumOfPoints.toFixed(2)
+                })
+                .catch(error => {
+                    console.error('Error uploading image:', error);
+                });
 
 
-    },6000);
+        },6000);
+    
 
 }
     
