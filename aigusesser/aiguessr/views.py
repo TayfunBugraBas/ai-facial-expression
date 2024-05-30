@@ -27,6 +27,7 @@ def home(request):
 @csrf_exempt
 def upload_audio(request):
         save_audio(request)
+        time.sleep(1)
         makePrediction('D:/yapayzekafinaluygulama/')
         
           # Ses dosyasını kaydetme işlemi
@@ -34,10 +35,7 @@ def upload_audio(request):
    
 
 def save_audio(request):
-    try:
-        os.remove('D:/yapayzekafinaluygulama/temp_audio.wav')
-    except:
-         pass
+   
     audio_file = request
     # Ses dosyasını diskte belirtilen bir konuma kaydetme
     with open(os.path.join('D:/yapayzekafinaluygulama/', 'temp_audio.wav'), 'wb+') as destination:
@@ -99,6 +97,7 @@ def makePrediction(audio_path):
      model = load_model('D:/yapayzekafinaluygulama/sesmodeli2.keras')
      
      result = model.predict(mfccs)
+     print(result)
      global emotion_sound
      emotion_sound = result
 
@@ -139,5 +138,6 @@ def getCalculatedResult(request):
     sound = emotion_sound[0,[wanted]]
     picture = emotion_picture[0,[wanted]]
     result = (sound + picture)/2
+    result  = result*100
     print(result)
     return JsonResponse({"message":str(result[0])})

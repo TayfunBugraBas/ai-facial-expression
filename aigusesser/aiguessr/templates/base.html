@@ -273,7 +273,7 @@ document.getElementById("secilen-duygu").innerText = secilenDuygu;
             secilenDuygu = rastgeleDuyguSec();
             document.getElementById("secilen-duygu").innerText = secilenDuygu;
             document.getElementById("topPuan").innerText = "sum Of Points: " + sumOfPoints
-            document.getElementById("sonuc").innerText = "Point Reset: " + data.message + "try the next emotion"
+            document.getElementById("sonuc").innerText = "Point Reset: " + data.message + " try the next emotion"
             
         }
 
@@ -304,9 +304,9 @@ function getResultsFromBackend(){
                     console.log(data)
                     document.getElementById('load').style.display = "none";
                     document.getElementById('makeGuess').style.display = "block";
-                    document.getElementById("sonuc").innerText = "here is the imitation result: " + parseFloat(data.message).toFixed(2) + "try again for better result"
+                    document.getElementById("sonuc").innerText = "here is the imitation result: " + parseFloat(data.message).toFixed(5) + " try again for better result"
                     sumOfPoints = sumOfPoints + parseFloat(data.message)
-                    document.getElementById("topPuan").innerText = "sum Of Points: " + sumOfPoints.toFixed(2)
+                    document.getElementById("topPuan").innerText = "sum Of Points: " + sumOfPoints.toFixed(5)
                 })
                 .catch(error => {
                     console.error('Error uploading image:', error);
