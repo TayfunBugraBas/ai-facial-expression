@@ -16,7 +16,7 @@ Pandas: 2.1.4
 Pydub: 0.25.1
 Opencv-Python: 4.9.0.80
 Resampy 0.4.3
-Bunlar yapılan uygulamanın çalışması için gereken minimum uygulamalar ve kütüphanelerdir. <b style="color:red;">Anaconda Navigator</b> kullanmanız önerilir. Paket olarak çoğu kütüphaneyi yükleyip problemsiz çalıştırabilirsiniz. Paket yüklemesi sonrası Kerneli sıfırlayın. 
+Bunlar yapılan uygulamanın çalışması için gereken minimum uygulamalar ve kütüphanelerdir. <strong><b style="color:red;">Anaconda Navigator</b></strong> kullanmanız önerilir. Paket olarak çoğu kütüphaneyi yükleyip problemsiz çalıştırabilirsiniz. Paket yüklemesi sonrası Kerneli sıfırlayın. 
 3.	Adım Projeyi Başlatma
 Projeyi başlatmak için  terminal içerisinde cd aigusesser yazıp enter tuşuna bastıktan sonar aigusesser dosyasına girin 
 “python manage.py runserver” yazıp projeyi başlatabilirsiniz. Projenin düzgün çalışabilmesi amacıyla Views.py dosyası içerisinde geçici resim ve görüntünün tutulduğu dosya yollarını bilgisayarınıza göre düzeltmeyi unutmayın. Aynı zamanda bu işlemi yapay zeka modellerinin yükleneceği klasör yolu için yapmayı unutmayın. 
